@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+  <language processor="MCF5272"
+            endian="big"
+            size="32"
+            variant="default"
+            version="1.0"
+            slafile="mcf5272.sla"
+            processorspec="mcf5272.pspec"
+            id="MCF5272:BE:32:default">
+    <description>Freescale MCF5272 ColdFire Processor</description>
+    <compiler name="default" spec="mcf5272.cspec" id="default"/>
+    <compiler name="gcc" spec="mcf5272_gcc.cspec" id="gcc"/>
+  </language>
+</language_definitions>
+

@@ -1,0 +1,207 @@
+# MCF5272 Logical Instructions
+# Includes AND, OR, EOR, NOT operations
+
+# AND instructions
+:AND Size EA,DReg is op15_12=0xC & DReg & op8_6=0x0 & Size & EA {
+  local src = EA;
+  local dst = DReg;
+  local result = dst & src;
+  DReg = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+:AND Size DReg,EA is op15_12=0xC & DReg & op8_6=0x1 & Size & EA {
+  local src = DReg;
+  local dst = EA;
+  local result = dst & src;
+  EA = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# ANDI instruction (AND immediate)
+:ANDI Size "#"imm32,EA is op15_8=0x02 & Size & EA; imm32 {
+  local src = imm32;
+  local dst = EA;
+  local result = dst & src;
+  EA = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# OR instructions
+:OR Size EA,DReg is op15_12=0x8 & DReg & op8_6=0x0 & Size & EA {
+  local src = EA;
+  local dst = DReg;
+  local result = dst | src;
+  DReg = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+:OR Size DReg,EA is op15_12=0x8 & DReg & op8_6=0x1 & Size & EA {
+  local src = DReg;
+  local dst = EA;
+  local result = dst | src;
+  EA = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# ORI instruction (OR immediate)
+:ORI Size "#"imm32,EA is op15_8=0x00 & Size & EA; imm32 {
+  local src = imm32;
+  local dst = EA;
+  local result = dst | src;
+  EA = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# EOR instructions (Exclusive OR)
+:EOR Size DReg,EA is op15_12=0xB & DReg & op8_6=0x1 & Size & EA {
+  local src = DReg;
+  local dst = EA;
+  local result = dst ^ src;
+  EA = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# EORI instruction (EOR immediate)
+:EORI Size "#"imm32,EA is op15_8=0x0A & Size & EA; imm32 {
+  local src = imm32;
+  local dst = EA;
+  local result = dst ^ src;
+  EA = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# NOT instruction (logical complement)
+:NOT Size EA is op15_8=0x46 & Size & EA {
+  local dst = EA;
+  local result = ~dst;
+  EA = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+

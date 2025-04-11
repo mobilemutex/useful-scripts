@@ -1,0 +1,153 @@
+# MCF5272 Bit Manipulation Instructions
+# Includes BTST, BSET, BCLR, BCHG operations
+
+# Bit Test (BTST)
+:BTST DReg,EA is op15_12=0x0 & DReg & op8_6=0x4 & EA {
+  local bit_num = DReg & 0x1F;  # Bit number modulo 32
+  local src = EA;
+  local bit_val = (src >> bit_num) & 1;
+  
+  # Update Z flag based on bit value
+  CCR = CCR & 0xFB;  # Clear Z flag
+  if (bit_val == 0) goto <zero>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  
+  <done>
+}
+
+:BTST "#"imm8,EA is op15_8=0x08 & EA; imm8 {
+  local bit_num = imm8 & 0x1F;  # Bit number modulo 32
+  local src = EA;
+  local bit_val = (src >> bit_num) & 1;
+  
+  # Update Z flag based on bit value
+  CCR = CCR & 0xFB;  # Clear Z flag
+  if (bit_val == 0) goto <zero>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  
+  <done>
+}
+
+# Bit Set (BSET)
+:BSET DReg,EA is op15_12=0x0 & DReg & op8_6=0x6 & EA {
+  local bit_num = DReg & 0x1F;  # Bit number modulo 32
+  local src = EA;
+  local bit_val = (src >> bit_num) & 1;
+  local mask = 1 << bit_num;
+  local result = src | mask;
+  EA = result;
+  
+  # Update Z flag based on original bit value
+  CCR = CCR & 0xFB;  # Clear Z flag
+  if (bit_val == 0) goto <zero>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  
+  <done>
+}
+
+:BSET "#"imm8,EA is op15_8=0x08 & op7_6=0x3 & EA; imm8 {
+  local bit_num = imm8 & 0x1F;  # Bit number modulo 32
+  local src = EA;
+  local bit_val = (src >> bit_num) & 1;
+  local mask = 1 << bit_num;
+  local result = src | mask;
+  EA = result;
+  
+  # Update Z flag based on original bit value
+  CCR = CCR & 0xFB;  # Clear Z flag
+  if (bit_val == 0) goto <zero>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  
+  <done>
+}
+
+# Bit Clear (BCLR)
+:BCLR DReg,EA is op15_12=0x0 & DReg & op8_6=0x5 & EA {
+  local bit_num = DReg & 0x1F;  # Bit number modulo 32
+  local src = EA;
+  local bit_val = (src >> bit_num) & 1;
+  local mask = ~(1 << bit_num);
+  local result = src & mask;
+  EA = result;
+  
+  # Update Z flag based on original bit value
+  CCR = CCR & 0xFB;  # Clear Z flag
+  if (bit_val == 0) goto <zero>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  
+  <done>
+}
+
+:BCLR "#"imm8,EA is op15_8=0x08 & op7_6=0x2 & EA; imm8 {
+  local bit_num = imm8 & 0x1F;  # Bit number modulo 32
+  local src = EA;
+  local bit_val = (src >> bit_num) & 1;
+  local mask = ~(1 << bit_num);
+  local result = src & mask;
+  EA = result;
+  
+  # Update Z flag based on original bit value
+  CCR = CCR & 0xFB;  # Clear Z flag
+  if (bit_val == 0) goto <zero>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  
+  <done>
+}
+
+# Bit Change (BCHG)
+:BCHG DReg,EA is op15_12=0x0 & DReg & op8_6=0x7 & EA {
+  local bit_num = DReg & 0x1F;  # Bit number modulo 32
+  local src = EA;
+  local bit_val = (src >> bit_num) & 1;
+  local mask = 1 << bit_num;
+  local result = src ^ mask;
+  EA = result;
+  
+  # Update Z flag based on original bit value
+  CCR = CCR & 0xFB;  # Clear Z flag
+  if (bit_val == 0) goto <zero>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  
+  <done>
+}
+
+:BCHG "#"imm8,EA is op15_8=0x08 & op7_6=0x1 & EA; imm8 {
+  local bit_num = imm8 & 0x1F;  # Bit number modulo 32
+  local src = EA;
+  local bit_val = (src >> bit_num) & 1;
+  local mask = 1 << bit_num;
+  local result = src ^ mask;
+  EA = result;
+  
+  # Update Z flag based on original bit value
+  CCR = CCR & 0xFB;  # Clear Z flag
+  if (bit_val == 0) goto <zero>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  
+  <done>
+}
+

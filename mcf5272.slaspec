@@ -1,0 +1,647 @@
+# SLEIGH specification file for MCF5272 ColdFire Processor
+# Based on ColdFire Family Programmer's Reference Manual
+# Implements ColdFire Version 2 instruction set architecture
+
+define endian=big;
+define alignment=2;
+
+# Address spaces
+define space ram type=ram_space size=4 default;
+define space register type=register_space size=4;
+
+# Register definitions
+define register offset=0x00 size=4 [ D0 D1 D2 D3 D4 D5 D6 D7 ];
+define register offset=0x20 size=4 [ A0 A1 A2 A3 A4 A5 A6 A7 ];
+define register offset=0x40 size=4 [ PC ];
+define register offset=0x44 size=2 [ SR ];
+define register offset=0x46 size=1 [ CCR ];
+define register offset=0x48 size=4 [ VBR ];
+define register offset=0x4C size=4 [ CACR ];
+define register offset=0x50 size=4 [ ASID ];
+define register offset=0x54 size=4 [ ACR0 ];
+define register offset=0x58 size=4 [ ACR1 ];
+
+# MAC Unit registers
+define register offset=0x60 size=4 [ MACSR ];
+define register offset=0x64 size=4 [ MASK ];
+define register offset=0x68 size=8 [ ACC ];
+
+# Debug/BDM registers
+define register offset=0x70 size=4 [ AATR TDR PBR PBMR ];
+define register offset=0x80 size=4 [ ABHR ABLR DBR DBMR ];
+
+# Stack pointer alias
+define register offset=0x3C size=4 [ SP ];
+
+# Context register for instruction decoding
+define register offset=0x100 size=4 contextreg;
+
+# Context variables for instruction decoding
+define context contextreg
+  assume_supervisor = (0,0)
+;
+
+# Token definitions for instruction decoding
+define token instr16 (16)
+  op15_12 = (12,15)
+  op11_8  = (8,11)
+  op15_8  = (8,15)
+  op7_6   = (6,7)
+  op5_3   = (3,5)
+  op2_0   = (0,2)
+  op8_6   = (6,8)
+  op5_0   = (0,5)
+  op7_0   = (0,7)
+  op11_0  = (0,11)
+  op15_0  = (0,15)
+  
+  # Specific bit fields
+  size_field = (6,7)
+  mode_field = (3,5)
+  reg_field  = (0,2)
+  dreg_field = (9,11)
+  areg_field = (9,11)
+  
+  # Condition codes
+  cc_field = (8,11)
+  
+  # Immediate data indicators
+  imm3 = (9,11)
+  imm8 = (0,7)
+;
+
+define token instr32 (32)
+  op31_16 = (16,31)
+  ext_word = (0,15)
+;
+
+define token data16 (16)
+  imm16 = (0,15) signed
+  imm16_u = (0,15)
+  addr16 = (0,15)
+;
+
+define token data32 (32)
+  imm32 = (0,31) signed
+  imm32_u = (0,31)
+  addr32 = (0,31)
+;
+
+# Addressing mode constructors
+attach variables [ reg_field ] [ D0 D1 D2 D3 D4 D5 D6 D7 ];
+attach variables [ dreg_field ] [ D0 D1 D2 D3 D4 D5 D6 D7 ];
+attach variables [ areg_field ] [ A0 A1 A2 A3 A4 A5 A6 A7 ];
+
+# Data register direct
+DReg: reg_field is reg_field { export reg_field; }
+
+# Address register direct  
+AReg: reg_field is reg_field { export reg_field; }
+
+# Size specifications
+Size: ".b" is size_field=0 { export 1:1; }
+Size: ".w" is size_field=1 { export 2:1; }
+Size: ".l" is size_field=2 { export 4:1; }
+
+# Effective address modes
+EA: DReg is mode_field=0 & DReg { export DReg; }
+EA: AReg is mode_field=1 & AReg { export AReg; }
+EA: (AReg) is mode_field=2 & AReg { export *:4 AReg; }
+EA: (AReg)+ is mode_field=3 & AReg { 
+  tmp:4 = AReg;
+  AReg = AReg + 4;
+  export *:4 tmp;
+}
+EA: -(AReg) is mode_field=4 & AReg {
+  AReg = AReg - 4;
+  export *:4 AReg;
+}
+EA: imm16(AReg) is mode_field=5 & AReg; imm16 {
+  addr:4 = AReg + imm16;
+  export *:4 addr;
+}
+EA: addr16".w" is mode_field=7 & reg_field=0; addr16 {
+  export *:4 addr16;
+}
+EA: addr32".l" is mode_field=7 & reg_field=1; addr32 {
+  export *:4 addr32;
+}
+EA: "#"imm32 is mode_field=7 & reg_field=4; imm32 {
+  export *:4 imm32;
+}
+
+# PC relative addressing
+EA: imm16(PC) is mode_field=7 & reg_field=2; imm16 {
+  addr:4 = inst_start + 2 + imm16;
+  export *:4 addr;
+}
+
+# Source effective address modes (duplicate of EA for MOVE instructions)
+SrcEA: DReg is mode_field=0 & DReg { export DReg; }
+SrcEA: AReg is mode_field=1 & AReg { export AReg; }
+SrcEA: (AReg) is mode_field=2 & AReg { export *:4 AReg; }
+SrcEA: (AReg)+ is mode_field=3 & AReg { 
+  tmp:4 = AReg;
+  AReg = AReg + 4;
+  export *:4 tmp;
+}
+SrcEA: -(AReg) is mode_field=4 & AReg {
+  AReg = AReg - 4;
+  export *:4 AReg;
+}
+SrcEA: imm16(AReg) is mode_field=5 & AReg; imm16 {
+  addr:4 = AReg + imm16;
+  export *:4 addr;
+}
+SrcEA: addr16".w" is mode_field=7 & reg_field=0; addr16 {
+  export *:4 addr16;
+}
+SrcEA: addr32".l" is mode_field=7 & reg_field=1; addr32 {
+  export *:4 addr32;
+}
+SrcEA: "#"imm32 is mode_field=7 & reg_field=4; imm32 {
+  export *:4 imm32;
+}
+SrcEA: imm16(PC) is mode_field=7 & reg_field=2; imm16 {
+  addr:4 = inst_start + 2 + imm16;
+  export *:4 addr;
+}
+
+# Destination effective address modes (duplicate of EA for MOVE instructions)
+DstEA: DReg is mode_field=0 & DReg { export DReg; }
+DstEA: AReg is mode_field=1 & AReg { export AReg; }
+DstEA: (AReg) is mode_field=2 & AReg { export *:4 AReg; }
+DstEA: (AReg)+ is mode_field=3 & AReg { 
+  tmp:4 = AReg;
+  AReg = AReg + 4;
+  export *:4 tmp;
+}
+DstEA: -(AReg) is mode_field=4 & AReg {
+  AReg = AReg - 4;
+  export *:4 AReg;
+}
+DstEA: imm16(AReg) is mode_field=5 & AReg; imm16 {
+  addr:4 = AReg + imm16;
+  export *:4 addr;
+}
+DstEA: addr16".w" is mode_field=7 & reg_field=0; addr16 {
+  export *:4 addr16;
+}
+DstEA: addr32".l" is mode_field=7 & reg_field=1; addr32 {
+  export *:4 addr32;
+}
+
+# Condition codes
+CC: "t"  is cc_field=0x0 { export 1:1; }
+CC: "f"  is cc_field=0x1 { export 0:1; }
+CC: "hi" is cc_field=0x2 { tmp:1 = (CCR & 0x05) == 0; export tmp; }
+CC: "ls" is cc_field=0x3 { tmp:1 = (CCR & 0x05) != 0; export tmp; }
+CC: "cc" is cc_field=0x4 { tmp:1 = (CCR & 0x01) == 0; export tmp; }
+CC: "cs" is cc_field=0x5 { tmp:1 = (CCR & 0x01) != 0; export tmp; }
+CC: "ne" is cc_field=0x6 { tmp:1 = (CCR & 0x04) == 0; export tmp; }
+CC: "eq" is cc_field=0x7 { tmp:1 = (CCR & 0x04) != 0; export tmp; }
+CC: "vc" is cc_field=0x8 { tmp:1 = (CCR & 0x02) == 0; export tmp; }
+CC: "vs" is cc_field=0x9 { tmp:1 = (CCR & 0x02) != 0; export tmp; }
+CC: "pl" is cc_field=0xA { tmp:1 = (CCR & 0x08) == 0; export tmp; }
+CC: "mi" is cc_field=0xB { tmp:1 = (CCR & 0x08) != 0; export tmp; }
+CC: "ge" is cc_field=0xC { tmp:1 = ((CCR & 0x08) >> 3) == ((CCR & 0x02) >> 1); export tmp; }
+CC: "lt" is cc_field=0xD { tmp:1 = ((CCR & 0x08) >> 3) != ((CCR & 0x02) >> 1); export tmp; }
+CC: "gt" is cc_field=0xE { 
+  n:1 = (CCR & 0x08) >> 3;
+  v:1 = (CCR & 0x02) >> 1;
+  z:1 = (CCR & 0x04) >> 2;
+  tmp:1 = (n == v) & (z == 0);
+  export tmp;
+}
+CC: "le" is cc_field=0xF { 
+  n:1 = (CCR & 0x08) >> 3;
+  v:1 = (CCR & 0x02) >> 1;
+  z:1 = (CCR & 0x04) >> 2;
+  tmp:1 = (n != v) | (z != 0);
+  export tmp;
+}
+
+# Instruction definitions
+
+# NOP instruction
+:NOP is op15_0=0x4E71 {
+  # No operation
+}
+
+# MOVE instructions
+:MOVE Size SrcEA,DstEA is op15_12=0x1 & Size & SrcEA & DstEA {
+  # Move data from source to destination
+  # Size determines operation width
+  local src = SrcEA;
+  local dst = DstEA;
+  dst = src;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (src == 0) goto <zero>;
+  if (src s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# MOVEA instruction (move to address register)
+:MOVEA".w" EA,AReg is op15_12=0x3 & op8_6=0x1 & AReg & EA {
+  AReg = sext(EA:2);
+}
+
+:MOVEA".l" EA,AReg is op15_12=0x2 & op8_6=0x1 & AReg & EA {
+  AReg = EA;
+}
+
+# ADD instructions
+:ADD Size EA,DReg is op15_12=0xD & DReg & op8_6=0x0 & Size & EA {
+  local src = EA;
+  local dst = DReg;
+  local result = dst + src;
+  DReg = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  # Check for overflow and carry
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+:ADD Size DReg,EA is op15_12=0xD & DReg & op8_6=0x1 & Size & EA {
+  local src = DReg;
+  local dst = EA;
+  local result = dst + src;
+  EA = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# ADDA instruction (add to address register)
+:ADDA".w" EA,AReg is op15_12=0xD & AReg & op8_6=0x3 & EA {
+  AReg = AReg + sext(EA:2);
+}
+
+:ADDA".l" EA,AReg is op15_12=0xD & AReg & op8_6=0x7 & EA {
+  AReg = AReg + EA;
+}
+
+# ADDI instruction (add immediate)
+:ADDI Size "#"imm32,EA is op15_8=0x06 & Size & EA; imm32 {
+  local src = imm32;
+  local dst = EA;
+  local result = dst + src;
+  EA = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# ADDQ instruction (add quick)
+:ADDQ".b" "#"imm3,EA is op15_12=0x5 & imm3 & op8_6=0x0 & EA {
+  local src:1 = imm3;
+  if (src != 0) goto <use_src>;
+  src = 8;
+  <use_src>
+  local dst = EA;
+  local result = dst + zext(src);
+  EA = result;
+  
+  # Update condition codes for data registers only
+  if (EA == DReg) goto <update_cc>;
+  goto <done>;
+  
+  <update_cc>
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+:ADDQ".w" "#"imm3,EA is op15_12=0x5 & imm3 & op8_6=0x1 & EA {
+  local src:2 = imm3;
+  if (src != 0) goto <use_src>;
+  src = 8;
+  <use_src>
+  local dst = EA;
+  local result = dst + zext(src);
+  EA = result;
+  
+  # Update condition codes for data registers only
+  if (EA == DReg) goto <update_cc>;
+  goto <done>;
+  
+  <update_cc>
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+:ADDQ".l" "#"imm3,EA is op15_12=0x5 & imm3 & op8_6=0x2 & EA {
+  local src:4 = imm3;
+  if (src != 0) goto <use_src>;
+  src = 8;
+  <use_src>
+  local dst = EA;
+  local result = dst + src;
+  EA = result;
+  
+  # Update condition codes for data registers only
+  if (EA == DReg) goto <update_cc>;
+  goto <done>;
+  
+  <update_cc>
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# SUB instructions
+:SUB Size EA,DReg is op15_12=0x9 & DReg & op8_6=0x0 & Size & EA {
+  local src = EA;
+  local dst = DReg;
+  local result = dst - src;
+  DReg = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+:SUB Size DReg,EA is op15_12=0x9 & DReg & op8_6=0x1 & Size & EA {
+  local src = DReg;
+  local dst = EA;
+  local result = dst - src;
+  EA = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# SUBA instruction (subtract from address register)
+:SUBA".w" EA,AReg is op15_12=0x9 & AReg & op8_6=0x3 & EA {
+  AReg = AReg - sext(EA:2);
+}
+
+:SUBA".l" EA,AReg is op15_12=0x9 & AReg & op8_6=0x7 & EA {
+  AReg = AReg - EA;
+}
+
+# CMP instruction
+:CMP Size EA,DReg is op15_12=0xB & DReg & op8_6=0x0 & Size & EA {
+  local src = EA;
+  local dst = DReg;
+  local result = dst - src;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# CMPA instruction (compare with address register)
+:CMPA".w" EA,AReg is op15_12=0xB & AReg & op8_6=0x3 & EA {
+  local src = sext(EA:2);
+  local dst = AReg;
+  local result = dst - src;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+:CMPA".l" EA,AReg is op15_12=0xB & AReg & op8_6=0x7 & EA {
+  local src = EA;
+  local dst = AReg;
+  local result = dst - src;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# Branch instructions
+:B^CC addr16 is op15_8=0x60 & CC; addr16 {
+  if (CC) goto [inst_start + 2 + addr16];
+}
+
+:B^CC".s" imm8 is op15_8=0x60 & CC & imm8 {
+  local offset:2 = sext(imm8:1);
+  if (CC) goto [inst_start + 2 + offset];
+}
+
+# BRA instruction (branch always)
+:BRA addr16 is op15_8=0x60 & op7_0=0x00; addr16 {
+  goto [inst_start + 2 + addr16];
+}
+
+:BRA".s" imm8 is op15_8=0x60 & imm8 {
+  local offset:2 = sext(imm8:1);
+  goto [inst_start + 2 + offset];
+}
+
+# BSR instruction (branch to subroutine)
+:BSR addr16 is op15_8=0x61 & op7_0=0x00; addr16 {
+  A7 = A7 - 4;
+  *:4 A7 = inst_next;
+  call [inst_start + 2 + addr16];
+}
+
+:BSR".s" imm8 is op15_8=0x61 & imm8 {
+  local offset:2 = sext(imm8:1);
+  A7 = A7 - 4;
+  *:4 A7 = inst_next;
+  call [inst_start + 2 + offset];
+}
+
+# JMP instruction (jump)
+:JMP EA is op15_6=0x13E & EA {
+  goto [EA];
+}
+
+# JSR instruction (jump to subroutine)
+:JSR EA is op15_6=0x13F & EA {
+  A7 = A7 - 4;
+  *:4 A7 = inst_next;
+  call [EA];
+}
+
+# RTS instruction (return from subroutine)
+:RTS is op15_0=0x4E75 {
+  local addr:4 = *:4 A7;
+  A7 = A7 + 4;
+  return [addr];
+}
+
+# LEA instruction (load effective address)
+:LEA EA,AReg is op15_12=0x4 & AReg & op8_6=0x7 & EA {
+  AReg = EA;
+}
+
+# PEA instruction (push effective address)
+:PEA EA is op15_6=0x121 & EA {
+  A7 = A7 - 4;
+  *:4 A7 = EA;
+}
+
+# CLR instruction (clear)
+:CLR Size EA is op15_8=0x42 & Size & EA {
+  EA = 0;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  CCR = CCR | 0x04;  # Set Z flag
+}
+
+# TST instruction (test)
+:TST Size EA is op15_8=0x4A & Size & EA {
+  local val = EA;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (val == 0) goto <zero>;
+  if (val s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# Include additional instruction groups
+@include "mcf5272_logical.sinc"
+@include "mcf5272_shift.sinc"
+@include "mcf5272_bit.sinc"
+@include "mcf5272_mac.sinc"
+

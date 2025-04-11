@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<opinions>
+  <!-- MCF5272 ColdFire processor import guidance -->
+  
+  <!-- ELF files -->
+  <constraint loader="Executable and Linking Format (ELF)" compilerSpecID="gcc">
+    <constraint primary="68" secondary="4" tertiary="0" quaternary="0"/>
+  </constraint>
+  
+  <!-- Binary files with ColdFire characteristics -->
+  <constraint loader="Raw Binary" compilerSpecID="default">
+    <constraint primary="0" secondary="0" tertiary="0" quaternary="0"/>
+  </constraint>
+  
+  <!-- Motorola S-Record format -->
+  <constraint loader="Motorola S-Record" compilerSpecID="default">
+    <constraint primary="0" secondary="0" tertiary="0" quaternary="0"/>
+  </constraint>
+  
+  <!-- Intel HEX format -->
+  <constraint loader="Intel Hex" compilerSpecID="default">
+    <constraint primary="0" secondary="0" tertiary="0" quaternary="0"/>
+  </constraint>
+  
+  <!-- CodeWarrior object files -->
+  <constraint loader="CodeWarrior Object" compilerSpecID="default">
+    <constraint primary="0" secondary="0" tertiary="0" quaternary="0"/>
+  </constraint>
+  
+  <!-- Memory layout suggestions -->
+  <constraint loader="Raw Binary">
+    <constraint primary="0x00000000" secondary="0x00400000" tertiary="0" quaternary="0"/>
+    <constraint primary="0x10000000" secondary="0x10001000" tertiary="0" quaternary="0"/>
+    <constraint primary="0x20000000" secondary="0x20001000" tertiary="0" quaternary="0"/>
+  </constraint>
+</opinions>
+

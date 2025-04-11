@@ -1,0 +1,262 @@
+# MCF5272 MAC (Multiply-Accumulate) Instructions
+# ColdFire-specific MAC unit operations
+
+# MAC instruction (Multiply and Accumulate)
+:MAC".w" DReg,DReg is op15_12=0xA & DReg & op8_6=0x0 & op5_4=0x0 & op3=0x0 & DReg {
+  local src1:2 = DReg:2;
+  local src2:2 = DReg:2;
+  local product:4 = sext(src1) * sext(src2);
+  ACC = ACC + sext(product);
+  
+  # Update MAC status register
+  # Implementation depends on specific MAC unit configuration
+}
+
+:MAC".l" DReg,DReg is op15_12=0xA & DReg & op8_6=0x0 & op5_4=0x1 & op3=0x0 & DReg {
+  local src1 = DReg;
+  local src2 = DReg;
+  local product:8 = sext(src1) * sext(src2);
+  ACC = ACC + product;
+  
+  # Update MAC status register
+}
+
+# MSAC instruction (Multiply and Subtract from Accumulator)
+:MSAC".w" DReg,DReg is op15_12=0xA & DReg & op8_6=0x0 & op5_4=0x0 & op3=0x1 & DReg {
+  local src1:2 = DReg:2;
+  local src2:2 = DReg:2;
+  local product:4 = sext(src1) * sext(src2);
+  ACC = ACC - sext(product);
+  
+  # Update MAC status register
+}
+
+:MSAC".l" DReg,DReg is op15_12=0xA & DReg & op8_6=0x0 & op5_4=0x1 & op3=0x1 & DReg {
+  local src1 = DReg;
+  local src2 = DReg;
+  local product:8 = sext(src1) * sext(src2);
+  ACC = ACC - product;
+  
+  # Update MAC status register
+}
+
+# MULS instruction (Signed Multiply)
+:MULS".w" EA,DReg is op15_12=0xC & DReg & op8_6=0x3 & EA {
+  local src1:2 = EA:2;
+  local src2:2 = DReg:2;
+  local result:4 = sext(src1) * sext(src2);
+  DReg = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+:MULS".l" EA,DReg is op15_12=0x4 & op11_6=0x30 & DReg & EA {
+  local src1 = EA;
+  local src2 = DReg;
+  local result:8 = sext(src1) * sext(src2);
+  DReg = result:4;  # Store lower 32 bits
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# MULU instruction (Unsigned Multiply)
+:MULU".w" EA,DReg is op15_12=0xC & DReg & op8_6=0x0 & EA {
+  local src1:2 = EA:2;
+  local src2:2 = DReg:2;
+  local result:4 = zext(src1) * zext(src2);
+  DReg = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+:MULU".l" EA,DReg is op15_12=0x4 & op11_6=0x30 & DReg & EA {
+  local src1 = EA;
+  local src2 = DReg;
+  local result:8 = zext(src1) * zext(src2);
+  DReg = result:4;  # Store lower 32 bits
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# DIVS instruction (Signed Divide)
+:DIVS".w" EA,DReg is op15_12=0x8 & DReg & op8_6=0x3 & EA {
+  local dividend = DReg;
+  local divisor:2 = EA:2;
+  
+  if (divisor == 0) goto <div_by_zero>;
+  
+  local divisor_ext = sext(divisor);
+  local quotient_temp = dividend s/ divisor_ext;
+  local remainder_temp = dividend s% divisor_ext;
+  local quotient:2 = quotient_temp:2;
+  local remainder:2 = remainder_temp:2;
+  
+  # Pack quotient and remainder into result
+  DReg = (zext(remainder) << 16) | zext(quotient);
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (quotient == 0) goto <zero>;
+  if (quotient s< 0) goto <negative>;
+  goto <done>;
+  
+  <div_by_zero>
+  # Trigger divide by zero exception
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+:DIVS".l" EA,DReg is op15_12=0x4 & op11_6=0x32 & DReg & EA {
+  local dividend = DReg;
+  local divisor = EA;
+  
+  if (divisor == 0) goto <div_by_zero>;
+  
+  local quotient = dividend s/ divisor;
+  DReg = quotient;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (quotient == 0) goto <zero>;
+  if (quotient s< 0) goto <negative>;
+  goto <done>;
+  
+  <div_by_zero>
+  # Trigger divide by zero exception
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# DIVU instruction (Unsigned Divide)
+:DIVU".w" EA,DReg is op15_12=0x8 & DReg & op8_6=0x0 & EA {
+  local dividend = DReg;
+  local divisor:2 = EA:2;
+  
+  if (divisor == 0) goto <div_by_zero>;
+  
+  local divisor_ext = zext(divisor);
+  local quotient_temp = dividend / divisor_ext;
+  local remainder_temp = dividend % divisor_ext;
+  local quotient:2 = quotient_temp:2;
+  local remainder:2 = remainder_temp:2;
+  
+  # Pack quotient and remainder into result
+  DReg = (zext(remainder) << 16) | zext(quotient);
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (quotient == 0) goto <zero>;
+  if (quotient s< 0) goto <negative>;
+  goto <done>;
+  
+  <div_by_zero>
+  # Trigger divide by zero exception
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+:DIVU".l" EA,DReg is op15_12=0x4 & op11_6=0x32 & DReg & EA {
+  local dividend = DReg;
+  local divisor = EA;
+  
+  if (divisor == 0) goto <div_by_zero>;
+  
+  local quotient = dividend / divisor;
+  DReg = quotient;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (quotient == 0) goto <zero>;
+  if (quotient s< 0) goto <negative>;
+  goto <done>;
+  
+  <div_by_zero>
+  # Trigger divide by zero exception
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+

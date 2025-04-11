@@ -1,0 +1,195 @@
+# MCF5272 Shift and Rotate Instructions
+# Includes ASL, ASR, LSL, LSR operations
+
+# Arithmetic Shift Left (ASL)
+:ASL Size "#"imm3,DReg is op15_12=0xE & imm3 & op8_6=0x4 & Size & op5_3=0x0 & DReg {
+  local count:1 = imm3;
+  if (count != 0) goto <use_count>;
+  count = 8;
+  <use_count>
+  local src = DReg;
+  local result = src << count;
+  DReg = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+:ASL Size DReg,DReg is op15_12=0xE & DReg & op8_6=0x5 & Size & op5_3=0x0 & DReg {
+  local count = DReg & 0x3F;  # Count is modulo 64
+  local src = DReg;
+  local result = src << count;
+  DReg = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# Arithmetic Shift Right (ASR)
+:ASR Size "#"imm3,DReg is op15_12=0xE & imm3 & op8_6=0x4 & Size & op5_3=0x1 & DReg {
+  local count:1 = imm3;
+  if (count != 0) goto <use_count>;
+  count = 8;
+  <use_count>
+  local src = DReg;
+  local result = src s>> count;
+  DReg = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+:ASR Size DReg,DReg is op15_12=0xE & DReg & op8_6=0x5 & Size & op5_3=0x1 & DReg {
+  local count = DReg & 0x3F;  # Count is modulo 64
+  local src = DReg;
+  local result = src s>> count;
+  DReg = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# Logical Shift Left (LSL)
+:LSL Size "#"imm3,DReg is op15_12=0xE & imm3 & op8_6=0x4 & Size & op5_3=0x2 & DReg {
+  local count:1 = imm3;
+  if (count != 0) goto <use_count>;
+  count = 8;
+  <use_count>
+  local src = DReg;
+  local result = src << count;
+  DReg = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+:LSL Size DReg,DReg is op15_12=0xE & DReg & op8_6=0x5 & Size & op5_3=0x2 & DReg {
+  local count = DReg & 0x3F;  # Count is modulo 64
+  local src = DReg;
+  local result = src << count;
+  DReg = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+# Logical Shift Right (LSR)
+:LSR Size "#"imm3,DReg is op15_12=0xE & imm3 & op8_6=0x4 & Size & op5_3=0x3 & DReg {
+  local count:1 = imm3;
+  if (count != 0) goto <use_count>;
+  count = 8;
+  <use_count>
+  local src = DReg;
+  local result = src >> count;
+  DReg = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
+:LSR Size DReg,DReg is op15_12=0xE & DReg & op8_6=0x5 & Size & op5_3=0x3 & DReg {
+  local count = DReg & 0x3F;  # Count is modulo 64
+  local src = DReg;
+  local result = src >> count;
+  DReg = result;
+  
+  # Update condition codes
+  CCR = CCR & 0xF0;  # Clear N,Z,V,C
+  if (result == 0) goto <zero>;
+  if (result s< 0) goto <negative>;
+  goto <done>;
+  
+  <zero>
+  CCR = CCR | 0x04;  # Set Z flag
+  goto <done>;
+  
+  <negative>
+  CCR = CCR | 0x08;  # Set N flag
+  
+  <done>
+}
+
