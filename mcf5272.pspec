@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<processor_spec>
+  <programcounter register="PC"/>
+  
+  <volatile outputop="write_volatile" inputop="read_volatile">
+    <range space="ram" first="0x10000000" last="0x1FFFFFFF"/>
+    <range space="ram" first="0x40000000" last="0x4FFFFFFF"/>
+  </volatile>
+  
+  <default_symbols>
+    <!-- System Integration Module (SIM) Registers -->
+    <symbol name="MBAR" address="ram:0x10000000" entry="false"/>
+    <symbol name="SCR" address="ram:0x10000004" entry="false"/>
+    <symbol name="SPR" address="ram:0x10000006" entry="false"/>
+    <symbol name="PMR" address="ram:0x10000008" entry="false"/>
+    <symbol name="ALPR" address="ram:0x1000000C" entry="false"/>
+    <symbol name="DIR" address="ram:0x1000000E" entry="false"/>
+    
+    <!-- Interrupt Controller Registers -->
+    <symbol name="ICR1" address="ram:0x10000020" entry="false"/>
+    <symbol name="ICR2" address="ram:0x10000024" entry="false"/>
+    <symbol name="ICR3" address="ram:0x10000028" entry="false"/>
+    <symbol name="ICR4" address="ram:0x1000002C" entry="false"/>
+    <symbol name="ISR" address="ram:0x10000030" entry="false"/>
+    <symbol name="PITR" address="ram:0x10000034" entry="false"/>
+    <symbol name="PIWR" address="ram:0x10000038" entry="false"/>
+    <symbol name="PIVR" address="ram:0x1000003F" entry="false"/>
+    
+    <!-- Chip Select Registers -->
+    <symbol name="CSBR0" address="ram:0x10000040" entry="false"/>
+    <symbol name="CSOR0" address="ram:0x10000044" entry="false"/>
+    <symbol name="CSBR1" address="ram:0x10000048" entry="false"/>
+    <symbol name="CSOR1" address="ram:0x1000004C" entry="false"/>
+    <symbol name="CSBR2" address="ram:0x10000050" entry="false"/>
+    <symbol name="CSOR2" address="ram:0x10000054" entry="false"/>
+    <symbol name="CSBR3" address="ram:0x10000058" entry="false"/>
+    <symbol name="CSOR3" address="ram:0x1000005C" entry="false"/>
+    <symbol name="CSBR4" address="ram:0x10000060" entry="false"/>
+    <symbol name="CSOR4" address="ram:0x10000064" entry="false"/>
+    <symbol name="CSBR5" address="ram:0x10000068" entry="false"/>
+    <symbol name="CSOR5" address="ram:0x1000006C" entry="false"/>
+    <symbol name="CSBR6" address="ram:0x10000070" entry="false"/>
+    <symbol name="CSOR6" address="ram:0x10000074" entry="false"/>
+    <symbol name="CSBR7" address="ram:0x10000078" entry="false"/>
+    <symbol name="CSOR7" address="ram:0x1000007C" entry="false"/>
+    
+    <!-- SDRAM Controller Registers -->
+    <symbol name="SDCR" address="ram:0x10000180" entry="false"/>
+    <symbol name="SDTR" address="ram:0x10000184" entry="false"/>
+    
+    <!-- Timer Registers -->
+    <symbol name="TMR0" address="ram:0x10000200" entry="false"/>
+    <symbol name="TRR0" address="ram:0x10000204" entry="false"/>
+    <symbol name="TCR0" address="ram:0x10000208" entry="false"/>
+    <symbol name="TCN0" address="ram:0x1000020C" entry="false"/>
+    <symbol name="TER0" address="ram:0x10000211" entry="false"/>
+    
+    <symbol name="TMR1" address="ram:0x10000220" entry="false"/>
+    <symbol name="TRR1" address="ram:0x10000224" entry="false"/>
+    <symbol name="TCR1" address="ram:0x10000228" entry="false"/>
+    <symbol name="TCN1" address="ram:0x1000022C" entry="false"/>
+    <symbol name="TER1" address="ram:0x10000231" entry="false"/>
+    
+    <symbol name="TMR2" address="ram:0x10000240" entry="false"/>
+    <symbol name="TRR2" address="ram:0x10000244" entry="false"/>
+    <symbol name="TCR2" address="ram:0x10000248" entry="false"/>
+    <symbol name="TCN2" address="ram:0x1000024C" entry="false"/>
+    <symbol name="TER2" address="ram:0x10000251" entry="false"/>
+    
+    <symbol name="TMR3" address="ram:0x10000260" entry="false"/>
+    <symbol name="TRR3" address="ram:0x10000264" entry="false"/>
+    <symbol name="TCR3" address="ram:0x10000268" entry="false"/>
+    <symbol name="TCN3" address="ram:0x1000026C" entry="false"/>
+    <symbol name="TER3" address="ram:0x10000271" entry="false"/>
+    
+    <!-- UART Registers -->
+    <symbol name="UMR1_0" address="ram:0x10000300" entry="false"/>
+    <symbol name="UMR2_0" address="ram:0x10000300" entry="false"/>
+    <symbol name="USR_0" address="ram:0x10000304" entry="false"/>
+    <symbol name="UCSR_0" address="ram:0x10000304" entry="false"/>
+    <symbol name="UCR_0" address="ram:0x10000308" entry="false"/>
+    <symbol name="URB_0" address="ram:0x1000030C" entry="false"/>
+    <symbol name="UTB_0" address="ram:0x1000030C" entry="false"/>
+    <symbol name="UIPCR_0" address="ram:0x10000310" entry="false"/>
+    <symbol name="UACR_0" address="ram:0x10000310" entry="false"/>
+    <symbol name="UISR_0" address="ram:0x10000314" entry="false"/>
+    <symbol name="UIMR_0" address="ram:0x10000314" entry="false"/>
+    <symbol name="UBG1_0" address="ram:0x10000318" entry="false"/>
+    <symbol name="UBG2_0" address="ram:0x1000031C" entry="false"/>
+    <symbol name="UIVR_0" address="ram:0x10000330" entry="false"/>
+    <symbol name="UIP_0" address="ram:0x10000334" entry="false"/>
+    <symbol name="UOP1_0" address="ram:0x10000338" entry="false"/>
+    <symbol name="UOP0_0" address="ram:0x1000033C" entry="false"/>
+    
+    <symbol name="UMR1_1" address="ram:0x10000340" entry="false"/>
+    <symbol name="UMR2_1" address="ram:0x10000340" entry="false"/>
+    <symbol name="USR_1" address="ram:0x10000344" entry="false"/>
+    <symbol name="UCSR_1" address="ram:0x10000344" entry="false"/>
+    <symbol name="UCR_1" address="ram:0x10000348" entry="false"/>
+    <symbol name="URB_1" address="ram:0x1000034C" entry="false"/>
+    <symbol name="UTB_1" address="ram:0x1000034C" entry="false"/>
+    <symbol name="UIPCR_1" address="ram:0x10000350" entry="false"/>
+    <symbol name="UACR_1" address="ram:0x10000350" entry="false"/>
+    <symbol name="UISR_1" address="ram:0x10000354" entry="false"/>
+    <symbol name="UIMR_1" address="ram:0x10000354" entry="false"/>
+    <symbol name="UBG1_1" address="ram:0x10000358" entry="false"/>
+    <symbol name="UBG2_1" address="ram:0x1000035C" entry="false"/>
+    <symbol name="UIVR_1" address="ram:0x10000370" entry="false"/>
+    <symbol name="UIP_1" address="ram:0x10000374" entry="false"/>
+    <symbol name="UOP1_1" address="ram:0x10000378" entry="false"/>
+    <symbol name="UOP0_1" address="ram:0x1000037C" entry="false"/>
+    
+    <!-- DMA Controller Registers -->
+    <symbol name="DCR0" address="ram:0x10000400" entry="false"/>
+    <symbol name="DISR" address="ram:0x10000404" entry="false"/>
+    <symbol name="DIMR" address="ram:0x10000408" entry="false"/>
+    <symbol name="DIVR" address="ram:0x1000040C" entry="false"/>
+    
+    <!-- Ethernet Controller Registers -->
+    <symbol name="ECR" address="ram:0x10000840" entry="false"/>
+    <symbol name="EIR" address="ram:0x10000844" entry="false"/>
+    <symbol name="EIMR" address="ram:0x10000848" entry="false"/>
+    <symbol name="IVSR" address="ram:0x1000084C" entry="false"/>
+    <symbol name="RDAR" address="ram:0x10000850" entry="false"/>
+    <symbol name="TDAR" address="ram:0x10000854" entry="false"/>
+    
+    <!-- USB Controller Registers -->
+    <symbol name="FNDR" address="ram:0x10001000" entry="false"/>
+    <symbol name="FNMR" address="ram:0x10001004" entry="false"/>
+    <symbol name="RFMR" address="ram:0x10001008" entry="false"/>
+    <symbol name="RFMMR" address="ram:0x1000100C" entry="false"/>
+    
+    <!-- GPIO Registers -->
+    <symbol name="PACNT" address="ram:0x10000100" entry="false"/>
+    <symbol name="PADDR" address="ram:0x10000101" entry="false"/>
+    <symbol name="PADAT" address="ram:0x10000102" entry="false"/>
+    <symbol name="PBCNT" address="ram:0x10000108" entry="false"/>
+    <symbol name="PBDDR" address="ram:0x10000109" entry="false"/>
+    <symbol name="PBDAT" address="ram:0x1000010A" entry="false"/>
+    <symbol name="PCDDR" address="ram:0x10000115" entry="false"/>
+    <symbol name="PCDAT" address="ram:0x10000116" entry="false"/>
+    <symbol name="PDCNT" address="ram:0x10000118" entry="false"/>
+    
+    <!-- Internal SRAM -->
+    <symbol name="INTERNAL_SRAM" address="ram:0x20000000" entry="false"/>
+    
+    <!-- Reset and Exception Vectors -->
+    <symbol name="RESET_SP" address="ram:0x00000000" entry="false"/>
+    <symbol name="RESET_PC" address="ram:0x00000004" entry="false"/>
+    <symbol name="ACCESS_ERROR" address="ram:0x00000008" entry="false"/>
+    <symbol name="ADDRESS_ERROR" address="ram:0x0000000C" entry="false"/>
+    <symbol name="ILLEGAL_INSTRUCTION" address="ram:0x00000010" entry="false"/>
+    <symbol name="DIVIDE_BY_ZERO" address="ram:0x00000014" entry="false"/>
+    <symbol name="PRIVILEGE_VIOLATION" address="ram:0x00000020" entry="false"/>
+    <symbol name="TRACE" address="ram:0x00000024" entry="false"/>
+    <symbol name="UNIMPLEMENTED_A_LINE" address="ram:0x00000028" entry="false"/>
+    <symbol name="UNIMPLEMENTED_F_LINE" address="ram:0x0000002C" entry="false"/>
+    <symbol name="SPURIOUS_INTERRUPT" address="ram:0x00000060" entry="false"/>
+    <symbol name="AUTOVECTOR_1" address="ram:0x00000064" entry="false"/>
+    <symbol name="AUTOVECTOR_2" address="ram:0x00000068" entry="false"/>
+    <symbol name="AUTOVECTOR_3" address="ram:0x0000006C" entry="false"/>
+    <symbol name="AUTOVECTOR_4" address="ram:0x00000070" entry="false"/>
+    <symbol name="AUTOVECTOR_5" address="ram:0x00000074" entry="false"/>
+    <symbol name="AUTOVECTOR_6" address="ram:0x00000078" entry="false"/>
+    <symbol name="AUTOVECTOR_7" address="ram:0x0000007C" entry="false"/>
+  </default_symbols>
+  
+  <register_data>
+    <!-- Data Registers -->
+    <register name="D0" group="Data"/>
+    <register name="D1" group="Data"/>
+    <register name="D2" group="Data"/>
+    <register name="D3" group="Data"/>
+    <register name="D4" group="Data"/>
+    <register name="D5" group="Data"/>
+    <register name="D6" group="Data"/>
+    <register name="D7" group="Data"/>
+    
+    <!-- Address Registers -->
+    <register name="A0" group="Address"/>
+    <register name="A1" group="Address"/>
+    <register name="A2" group="Address"/>
+    <register name="A3" group="Address"/>
+    <register name="A4" group="Address"/>
+    <register name="A5" group="Address"/>
+    <register name="A6" group="Address"/>
+    <register name="A7" group="Address"/>
+    
+    <!-- Stack Pointer (alias for A7) -->
+    <register name="SP" group="Address"/>
+    
+    <!-- Program Counter -->
+    <register name="PC" group="Control"/>
+    
+    <!-- Status Register -->
+    <register name="SR" group="Control"/>
+    
+    <!-- Condition Code Register -->
+    <register name="CCR" group="Control"/>
+    
+    <!-- Vector Base Register -->
+    <register name="VBR" group="Control"/>
+    
+    <!-- Cache Control Register -->
+    <register name="CACR" group="Control"/>
+    
+    <!-- Address Space Control Register -->
+    <register name="ASID" group="Control"/>
+    
+    <!-- Access Control Registers -->
+    <register name="ACR0" group="Control"/>
+    <register name="ACR1" group="Control"/>
+    
+    <!-- MAC Unit Registers -->
+    <register name="MACSR" group="MAC"/>
+    <register name="MASK" group="MAC"/>
+    <register name="ACC" group="MAC"/>
+    
+    <!-- Debug/BDM Registers -->
+    <register name="AATR" group="Debug"/>
+    <register name="TDR" group="Debug"/>
+    <register name="PBR" group="Debug"/>
+    <register name="PBMR" group="Debug"/>
+    <register name="ABHR" group="Debug"/>
+    <register name="ABLR" group="Debug"/>
+    <register name="DBR" group="Debug"/>
+    <register name="DBMR" group="Debug"/>
+  </register_data>
+</processor_spec>
+
