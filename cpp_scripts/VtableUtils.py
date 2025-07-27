@@ -1,5 +1,5 @@
 # VtableUtils.py - Utility functions for C++ Vtable Analysis
-# @author: AI Assistant
+# @author: mobilemutex
 # @category: C++
 
 """

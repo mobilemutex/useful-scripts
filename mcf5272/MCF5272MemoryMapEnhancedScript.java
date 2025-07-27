@@ -1,8 +1,8 @@
 //Creates detailed memory map with bit-level labels for MCF5272 ColdFire processor
-//@author Assistant
+//@author mobilemutex
 //@category Memory
 //@keybinding 
-//@menupath Tools[MCF5272 Memory Map Enhanced]
+//@menupath
 //@toolbar 
 
 import ghidra.app.script.GhidraScript;

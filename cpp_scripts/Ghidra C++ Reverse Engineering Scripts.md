@@ -1,9 +1,5 @@
 # Ghidra C++ Reverse Engineering Scripts
 
-**Author:** Manus AI  
-**Version:** 1.0  
-**Date:** July 2025
-
 ## Overview
 
 This collection of Ghidra scripts provides comprehensive tools for reverse engineering C++ binaries that lack Runtime Type Information (RTTI). The scripts enable analysts to specify virtual function table (vtable) addresses manually and automatically identify constructors, create class structures, and organize the analysis results within Ghidra's framework.

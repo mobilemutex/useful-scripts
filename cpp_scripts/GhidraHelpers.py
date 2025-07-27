@@ -1,5 +1,5 @@
 # GhidraHelpers.py - Common Ghidra API utilities
-# @author: AI Assistant
+# @author: mobilemutex
 # @category: C++
 
 """

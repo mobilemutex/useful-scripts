@@ -1,5 +1,5 @@
 # ConstructorUtils.py - Utility functions for C++ Constructor Analysis
-# @author: AI Assistant
+# @author: mobilemutex
 # @category: C++
 
 """

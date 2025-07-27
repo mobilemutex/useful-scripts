@@ -1,9 +1,9 @@
 # VtableAnalyzer.py - Ghidra Script for C++ Vtable Analysis
-# @author: AI Assistant
+# @author: mobilemutex
 # @category: C++
-# @keybinding: 
-# @menupath: 
-# @toolbar: 
+# @keybinding:
+# @menupath:
+# @toolbar:
 
 """
 Ghidra script to analyze C++ virtual function tables (vtables) in binaries without RTTI.

@@ -1,10 +1,5 @@
 # Ghidra C++ Reverse Engineering Scripts - Package Contents
 
-**Author:** Manus AI  
-**Version:** 1.0  
-**Date:** July 2025  
-**Package Size:** 13 files, ~200KB total
-
 ## Core Script Files
 
 ### Main Scripts

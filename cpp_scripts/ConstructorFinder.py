@@ -1,5 +1,5 @@
 # ConstructorFinder.py - Ghidra Script for C++ Constructor Identification
-# @author: AI Assistant
+# @author: mobilemutex
 # @category: C++
 # @keybinding: 
 # @menupath: 

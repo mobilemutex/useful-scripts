@@ -1,5 +1,5 @@
 # ClassStructureBuilder.py - Ghidra Script for C++ Class Structure Creation
-# @author: AI Assistant
+# @author: mobilemutex
 # @category: C++
 # @keybinding: 
 # @menupath: 

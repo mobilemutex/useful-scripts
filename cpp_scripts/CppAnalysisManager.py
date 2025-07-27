@@ -1,5 +1,5 @@
 # CppAnalysisManager.py - Main C++ Analysis Orchestration Script
-# @author: AI Assistant
+# @author: mobilemutex
 # @category: C++
 # @keybinding: 
 # @menupath: 
