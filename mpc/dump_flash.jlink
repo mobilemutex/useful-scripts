@@ -1,0 +1,35 @@
+// J-Link Commander Script for MPC5674F Flash Dump
+// Author: mobilemutex
+//
+// Usage: JLinkExe -device MPC5674F -if JTAG -speed 4000 -CommandFile dump_flash.jlink
+//
+// This script dumps the entire 4MB flash to a binary file.
+// You can modify the addresses and sizes as needed.
+
+// Connect to target
+connect
+
+// Halt the CPU
+halt
+
+// Dump entire flash (4MB) to file
+// SaveBin <filename>, <addr>, <NumBytes>
+SaveBin flash_dump_full.bin, 0x00000000, 0x400000
+
+// Alternative: Dump Flash_A only (2MB)
+// SaveBin flash_a_dump.bin, 0x00000000, 0x200000
+
+// Alternative: Dump Flash_B only (2MB)
+// SaveBin flash_b_dump.bin, 0x00200000, 0x200000
+
+// Alternative: Dump specific regions
+// SaveBin flash_low.bin, 0x00000000, 0x40000
+// SaveBin flash_mid.bin, 0x00040000, 0x40000
+// SaveBin flash_high.bin, 0x00080000, 0x180000
+
+// Reset and go (optional)
+// r
+// g
+
+// Exit J-Link Commander
+exit

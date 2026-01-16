@@ -382,3 +382,28 @@ U32 Verify(U32 Addr, U32 Sz, U8 *pBuf)
     
     return Addr + Sz;  /* Success - return end address */
 }
+
+/*
+ * Read - Read data from flash
+ * 
+ * Parameters:
+ *   Addr - Start address to read from
+ *   Sz   - Number of bytes to read
+ *   pBuf - Pointer to destination buffer
+ * 
+ * Returns: 0 on success
+ * 
+ * Note: For memory-mapped flash, J-Link can read directly.
+ *       This function is provided for completeness and can be called
+ *       by a debugger script if needed.
+ */
+int Read(U32 Addr, U32 Sz, U8 *pBuf)
+{
+    U32 i;
+    
+    for (i = 0; i < Sz; i++) {
+        pBuf[i] = *(volatile U8*)(Addr + i);
+    }
+    
+    return 0;
+}

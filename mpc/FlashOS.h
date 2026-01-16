@@ -66,3 +66,6 @@ extern int ProgramPage(U32 Addr, U32 Sz, U8 *pBuf);
 extern U32 Verify(U32 Addr, U32 Sz, U8 *pBuf);
 
 #endif // FLASHOS_H
+
+// Optional Read function (not part of CMSIS spec, but useful for completeness)
+extern int Read(U32 Addr, U32 Sz, U8 *pBuf);
