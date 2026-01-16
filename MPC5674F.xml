@@ -1,0 +1,33 @@
+<!--
+Author: mobilemutex
+Date: 2026-01-15
+Description: SEGGER J-Link device description file for the NXP MPC5674F microcontroller.
+
+To use this file:
+1. Place it in the appropriate JLinkDevices folder for your operating system:
+   - Windows: C:\Users\<USER>\AppData\Roaming\SEGGER\JLinkDevices\NXP\MPC5674F\MPC5674F.xml
+   - Linux:   $HOME/.config/SEGGER/JLinkDevices/NXP/MPC5674F/MPC5674F.xml
+   - macOS:   $HOME/Library/Application Support/SEGGER/JLinkDevices/NXP/MPC5674F/MPC5674F.xml
+2. Create the necessary subdirectories (e.g., NXP/MPC5674F) if they don't exist.
+
+IMPORTANT NOTE ON FLASH PROGRAMMING:
+J-Link does not have built-in flash programming support for the MPC56xx family.
+This XML file will enable J-Link to recognize the MPC5674F for debugging purposes only.
+To program the flash, you will need a separate flash loader file.
+-->
+<DataBase>
+  <Device>
+    <ChipInfo Vendor="NXP" Name="MPC5674F" Core="JLINK_CORE_POWER_PC" WorkRAMAddr="0x40008000" WorkRAMSize="0x00038000"/>
+    <!--
+      The FlashBankInfo section is commented out because a specific flash loader is required.
+      To enable flash programming, you must:
+      1. Obtain or create a compatible flash loader ELF file (e.g., MPC5674F.elf).
+      2. Place the ELF file in the same directory as this XML file.
+      3. Uncomment the FlashBankInfo section below.
+
+    <FlashBankInfo Name="Flash" BaseAddr="0x00000000" AlwaysPresent="1">
+      <LoaderInfo Name="Default" MaxSize="0x00400000" Loader="MPC5674F.elf" LoaderType="FLASH_ALGO_TYPE_OPEN" />
+    </FlashBankInfo>
+    -->
+  </Device>
+</DataBase>
