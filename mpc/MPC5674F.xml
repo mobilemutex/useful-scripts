@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+  SEGGER J-Link Device Description File for NXP MPC5674F
+  
+  Author: mobilemutex
+  Date: 2026-01-16
+  
+  This file adds support for the MPC5674F microcontroller to J-Link.
+  The MPC5674F features:
+  - Dual e200z7 PowerPC cores
+  - 4 MB internal flash (Flash_A: 2MB, Flash_B: 2MB)
+  - 256 KB internal SRAM
+  
+  Installation:
+  Place this file and MPC5674F.elf in:
+  - Windows: %APPDATA%\SEGGER\JLinkDevices\NXP\MPC5674F\
+  - Linux:   ~/.config/SEGGER/JLinkDevices/NXP/MPC5674F/
+  - macOS:   ~/Library/Application Support/SEGGER/JLinkDevices/NXP/MPC5674F/
+-->
+<DataBase>
+  <Device>
+    <!-- Device identification -->
+    <ChipInfo Vendor="NXP" Name="MPC5674F" Core="JLINK_CORE_POWER_PC" />
+    
+    <!-- Flash Bank A (2 MB) -->
+    <FlashBankInfo Name="Internal Flash A" BaseAddr="0x00000000">
+      <LoaderInfo Name="MPC5674F Flash Loader" 
+                  MaxSize="0x00200000"
+                  Loader="MPC5674F.elf" 
+                  LoaderType="FLASH_ALGO_TYPE_OPEN" />
+    </FlashBankInfo>
+    
+    <!-- Flash Bank B (2 MB) -->
+    <FlashBankInfo Name="Internal Flash B" BaseAddr="0x00200000">
+      <LoaderInfo Name="MPC5674F Flash Loader" 
+                  MaxSize="0x00200000"
+                  Loader="MPC5674F.elf" 
+                  LoaderType="FLASH_ALGO_TYPE_OPEN" />
+    </FlashBankInfo>
+  </Device>
+</DataBase>
