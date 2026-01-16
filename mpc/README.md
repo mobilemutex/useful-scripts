@@ -1,11 +1,11 @@
-# MPC5674F Open Flash Loader for SEGGER J-Link
+# MPC5674F Open Flash Loader and Debug Tools for SEGGER J-Link
 
 **Author:** mobilemutex  
 **Date:** 2026-01-16
 
 ## Overview
 
-This is an Open Flash Loader (OFL) for the NXP MPC5674F microcontroller, designed to work with SEGGER J-Link debug probes. The flash loader enables J-Link to program and read the internal 4MB flash memory of the MPC5674F.
+This package provides tools for programming and reading the internal 4MB flash memory of the NXP MPC5674F microcontroller using SEGGER J-Link debug probes. It includes an Open Flash Loader (OFL) for programming and a J-Link script for proper debug mode initialization required for reliable flash reading.
 
 ## Files
 
@@ -17,157 +17,65 @@ This is an Open Flash Loader (OFL) for the NXP MPC5674F microcontroller, designe
 | `Makefile` | Build system using Make |
 | `CMakeLists.txt` | Alternative build system using CMake |
 | `MPC5674F.xml` | J-Link device description file |
-| `dump_flash.jlink` | J-Link Commander script for dumping flash |
+| `MPC5674F_Debug.JLinkScript` | J-Link script for proper debug mode entry |
+| `dump_flash_full.jlink` | J-Link Commander script for dumping all flash |
+| `dump_flash.jlink` | Basic J-Link Commander script |
 
-## Requirements
+## The Flash Reading Problem
 
-### PowerPC Toolchain
+When attempting to read flash memory on the MPC5674F, you may encounter issues where only one flash bank is readable, and other regions return repeated values like `0x3C604000`. This occurs because the processor is not properly in debug mode, and memory reads are returning instruction fetches instead of actual memory contents.
 
-You need a PowerPC EABI cross-compiler. Options include:
-
-1. **NXP S32 Design Studio** (recommended) - Includes `powerpc-eabivle-gcc` toolchain. Download from the NXP website.
-
-2. **GNU PowerPC EABI Toolchain** - Generic `powerpc-eabi-gcc` toolchain that can be built from source or obtained from various sources.
-
-3. **CodeWarrior for MPC55xx/MPC56xx** - Older NXP/Freescale IDE with PowerPC compiler.
-
-### Toolchain Configuration
-
-Edit the `Makefile` or `CMakeLists.txt` to match your toolchain:
-
-```makefile
-# For NXP S32 Design Studio
-CC = powerpc-eabivle-gcc
-
-# For generic PowerPC EABI
-CC = powerpc-eabi-gcc
-```
-
-## Building
-
-### Using Make
-
-```bash
-# Build the flash loader
-make
-
-# Clean build artifacts
-make clean
-
-# Show build info
-make info
-```
-
-### Using CMake
-
-```bash
-mkdir build
-cd build
-cmake -DCMAKE_TOOLCHAIN_FILE=<path-to-toolchain-file> ..
-make
-```
-
-## Output
-
-After a successful build, you will have:
-
-| File | Description |
-|------|-------------|
-| `MPC5674F.elf` | ELF executable for J-Link |
-| `MPC5674F.bin` | Binary file |
-| `MPC5674F.map` | Linker map file |
-| `MPC5674F.lst` | Disassembly listing |
-
-## Installation
-
-### Step 1: Copy Files
-
-Copy the following files to your J-Link devices folder:
-
-**Windows:**
-```
-%APPDATA%\SEGGER\JLinkDevices\NXP\MPC5674F\
-```
-
-**Linux:**
-```
-~/.config/SEGGER/JLinkDevices/NXP/MPC5674F/
-```
-
-**macOS:**
-```
-~/Library/Application Support/SEGGER/JLinkDevices/NXP/MPC5674F/
-```
-
-Files to copy:
-- `MPC5674F.elf`
-- `MPC5674F.xml`
-
-### Step 2: Verify Installation
-
-1. Open J-Link Commander
-2. Type `device MPC5674F`
-3. The device should be recognized
+The MPC5674F uses the OnCE (On-Chip Emulation) debug interface, which requires specific initialization to enable external debug mode and halt the core properly. The included `MPC5674F_Debug.JLinkScript` handles this initialization automatically.
 
 ## Dumping Flash Memory
 
-The MPC5674F internal flash is memory-mapped, which means J-Link can read it directly without needing a special flash loader function. There are several methods to dump the flash contents:
+### Method 1: Using the J-Link Script (Recommended)
 
-### Method 1: J-Link Commander (Recommended)
-
-Use the included `dump_flash.jlink` script:
+This method uses the custom J-Link script to properly initialize debug mode before reading memory.
 
 ```bash
-JLinkExe -device MPC5674F -if JTAG -speed 4000 -CommandFile dump_flash.jlink
+JLinkExe -device MPC5674F -if JTAG -speed 4000 \
+         -JLinkScriptFile MPC5674F_Debug.JLinkScript \
+         -CommandFile dump_flash_full.jlink
 ```
 
-Or manually in J-Link Commander:
+### Method 2: Interactive with J-Link Script
+
+```bash
+JLinkExe -device MPC5674F -if JTAG -speed 4000 \
+         -JLinkScriptFile MPC5674F_Debug.JLinkScript
+```
+
+Then in J-Link Commander:
 
 ```
-J-Link> device MPC5674F
 J-Link> connect
 J-Link> halt
+J-Link> mem32 0x00000000 0x20
 J-Link> SaveBin flash_dump.bin, 0x00000000, 0x400000
 J-Link> exit
 ```
 
-### Method 2: J-Link Commander Interactive
+### Method 3: Using GDB with J-Link GDB Server
+
+Start the GDB server with the script:
 
 ```bash
-JLinkExe -device MPC5674F -if JTAG -speed 4000
+JLinkGDBServer -device MPC5674F -if JTAG -speed 4000 \
+               -JLinkScriptFile MPC5674F_Debug.JLinkScript
 ```
 
-Then use these commands:
+Connect with GDB:
 
-| Command | Description |
-|---------|-------------|
-| `SaveBin <file>, <addr>, <size>` | Save memory to binary file |
-| `mem <addr>, <size>` | Display memory contents |
-| `mem8 <addr>, <size>` | Display memory as bytes |
-| `mem16 <addr>, <size>` | Display memory as 16-bit words |
-| `mem32 <addr>, <size>` | Display memory as 32-bit words |
-
-### Method 3: J-Flash
-
-1. Create a new project for MPC5674F
-2. Connect to target
-3. Use "Target" → "Read back" → "Entire chip" or "Selected sectors"
-4. Save the read data to a file
-
-### Method 4: GDB with J-Link GDB Server
-
-Start the GDB server:
-```bash
-JLinkGDBServer -device MPC5674F -if JTAG -speed 4000
-```
-
-Connect with GDB and dump memory:
 ```gdb
 (gdb) target remote localhost:2331
+(gdb) monitor halt
 (gdb) dump binary memory flash_dump.bin 0x00000000 0x00400000
 ```
 
 ## Flash Memory Regions
+
+The MPC5674F has 4MB of internal flash organized into two arrays:
 
 | Region | Address Range | Size | Description |
 |--------|---------------|------|-------------|
@@ -197,28 +105,102 @@ SaveBin boot_sector.bin, 0x00000000, 0x10000
 SaveBin sram_dump.bin, 0x40000000, 0x40000
 ```
 
-## Programming Flash
+## How the J-Link Script Works
 
-### J-Link Commander
+The `MPC5674F_Debug.JLinkScript` performs the following initialization sequence:
 
+1. **JTAG Chain Configuration**: Sets up the JTAG chain parameters for the MPC5674F (5-bit IR, single device).
+
+2. **OnCE TAP Selection**: Writes the `ACCESS_AUX_TAP_ONCE` instruction (0x11) to the JTAGC IR to enable the OnCE TAP controller.
+
+3. **OnCE Enable**: Writes to the Enable_OnCE register to activate the OnCE module.
+
+4. **Debug Mode Request**: Sets the OCR[DR] bit to request debug mode entry.
+
+5. **External Debug Enable**: Sets DBCR0[EDM] to enable external debug mode, allowing the debugger to control the core.
+
+After this initialization, the core is halted and all memory regions become accessible for reading.
+
+## Building the Flash Loader
+
+### Requirements
+
+You need a PowerPC EABI cross-compiler:
+
+1. **NXP S32 Design Studio** (recommended) - Includes `powerpc-eabivle-gcc`
+2. **GNU PowerPC EABI Toolchain** - Generic `powerpc-eabi-gcc`
+3. **CodeWarrior for MPC55xx/MPC56xx** - Older NXP/Freescale IDE
+
+### Build Commands
+
+```bash
+# Edit Makefile to set your toolchain path, then:
+make
+
+# This produces MPC5674F.elf
 ```
-J-Link> device MPC5674F
-J-Link> connect
-J-Link> erase
-J-Link> loadfile firmware.bin 0x00000000
-J-Link> verifybin firmware.bin 0x00000000
+
+## Installation
+
+### Step 1: Copy Files
+
+Copy the following files to your J-Link devices folder:
+
+**Windows:**
+```
+%APPDATA%\SEGGER\JLinkDevices\NXP\MPC5674F\
 ```
 
-### J-Flash
+**Linux:**
+```
+~/.config/SEGGER/JLinkDevices/NXP/MPC5674F/
+```
 
-1. Create a new project
-2. Select "MPC5674F" as the target device
-3. Load your binary file
-4. Click "Program & Verify"
+**macOS:**
+```
+~/Library/Application Support/SEGGER/JLinkDevices/NXP/MPC5674F/
+```
 
-## Implemented Functions
+Files to copy:
+- `MPC5674F.elf` (after building)
+- `MPC5674F.xml`
+- `MPC5674F_Debug.JLinkScript`
 
-The flash loader implements the following CMSIS-style functions:
+### Step 2: Verify Installation
+
+```bash
+JLinkExe -device MPC5674F -if JTAG -speed 4000 \
+         -JLinkScriptFile ~/.config/SEGGER/JLinkDevices/NXP/MPC5674F/MPC5674F_Debug.JLinkScript
+```
+
+## Troubleshooting
+
+### "Only one flash bank readable"
+
+This is the main problem this package solves. Use the J-Link script:
+
+```bash
+JLinkExe -device MPC5674F -if JTAG -speed 4000 \
+         -JLinkScriptFile MPC5674F_Debug.JLinkScript
+```
+
+### "Memory returns 0x3C604000 repeatedly"
+
+The value `0x3C604000` is a PowerPC instruction (`lis r3, 0x4000`). This indicates the processor is not in debug mode. Use the J-Link script to properly enter debug mode.
+
+### "Cannot connect to target"
+
+Verify your JTAG connections. The MPC5674F uses a 14-pin OnCE connector. Ensure JCOMP is connected to VDD for JTAG compliance mode. Try reducing the JTAG speed to 1000 kHz.
+
+### "Device not found"
+
+Ensure the XML file is in the correct JLinkDevices folder and restart J-Link software after adding new device files.
+
+### "Flash programming failed"
+
+Verify JTAG connection, check that the target is powered, ensure flash blocks are not locked, and try reducing JTAG speed.
+
+## Implemented Flash Loader Functions
 
 | Function | Description |
 |----------|-------------|
@@ -230,38 +212,13 @@ The flash loader implements the following CMSIS-style functions:
 | `Verify()` | Verify programmed data |
 | `Read()` | Read flash data |
 
-## Limitations
-
-1. **Sector Erase**: The current implementation uses a simplified sector mapping. For production use, implement proper sector-level erase based on the actual MPC5674F sector layout.
-
-2. **Flash Unlocking**: If flash blocks are locked, you need to implement the unlock sequence using the correct password in the LMLR/HLR registers.
-
-3. **Dual-Core**: The MPC5674F has dual e200z7 cores. This flash loader assumes single-core operation.
-
-## Troubleshooting
-
-### "Device not found"
-
-Ensure the XML file is in the correct JLinkDevices folder, check that the ELF file path in the XML is correct, and restart J-Link software after adding new device files.
-
-### "Flash programming failed"
-
-Verify JTAG connection to the target, check that the target is powered, ensure flash blocks are not locked, and try reducing JTAG speed.
-
-### "Cannot read flash"
-
-Make sure the target is halted before reading. Use the `halt` command in J-Link Commander. Check that the JTAG connection is stable.
-
-### "Verification failed"
-
-The flash may not have been erased before programming. Use the erase option or call EraseChip before programming.
-
 ## References
 
 1. MPC5674F Reference Manual (Rev. 7)
 2. AN4365: Qorivva MPC56xx Flash Programming Through Nexus/JTAG
-3. SEGGER J-Link Device Support Kit Documentation
-4. Open Flash Loader Template: https://github.com/itzandroidtab/open_flashloader_template
+3. e200z7 Power Architecture Core Reference Manual
+4. SEGGER J-Link Script Files Documentation
+5. Open Flash Loader Template: https://github.com/itzandroidtab/open_flashloader_template
 
 ## License
 

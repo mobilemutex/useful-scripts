@@ -1,0 +1,47 @@
+// J-Link Commander Script for MPC5674F Full Flash Dump
+// Author: mobilemutex
+//
+// This script properly enters debug mode and dumps all flash memory.
+//
+// Usage:
+//   JLinkExe -device MPC5674F -if JTAG -speed 4000 \
+//            -JLinkScriptFile MPC5674F_Debug.JLinkScript \
+//            -CommandFile dump_flash_full.jlink
+//
+// Or without the script file (may not work for all flash banks):
+//   JLinkExe -device MPC5674F -if JTAG -speed 4000 -CommandFile dump_flash_full.jlink
+
+// Set JTAG speed (lower if you have connection issues)
+speed 4000
+
+// Connect to target
+connect
+
+// Halt the CPU (critical for reliable memory access)
+halt
+
+// Wait a moment for debug mode to stabilize
+sleep 100
+
+// Display some memory to verify connection
+mem32 0x00000000 0x20
+
+// Dump entire flash (4MB) to file
+// This may take several minutes depending on JTAG speed
+SaveBin flash_dump_4MB.bin, 0x00000000, 0x400000
+
+// Alternatively, dump each flash bank separately:
+// Flash_A (2MB)
+SaveBin flash_A.bin, 0x00000000, 0x200000
+
+// Flash_B (2MB)
+SaveBin flash_B.bin, 0x00200000, 0x200000
+
+// Dump internal SRAM (256KB) - useful for debugging
+SaveBin sram_dump.bin, 0x40000000, 0x40000
+
+// Show completion message
+?
+
+// Exit J-Link Commander
+exit
